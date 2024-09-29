@@ -1,9 +1,11 @@
 import os
 import io
+import time
 import requests
 from PIL import Image
 import google.generativeai as genai
 from googleapiclient.discovery import build
+from yt_dlp import YoutubeDL
 
 # Get API keys from environment variables
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
@@ -52,42 +54,72 @@ def get_thumbnail_image(url):
     img.save(img_byte_arr, format='PNG')
     return img_byte_arr.getvalue()
 
-def analyze_video(video_details, thumbnail_image):
-    prompt = [
-        thumbnail_image,
-        f"""
-        Analyze this video thumbnail and provide a summary based on the following information:
-        
-        Title: {video_details['title']}
-        Description: {video_details['description']}
-        Views: {video_details['view_count']}
-        Likes: {video_details['like_count']}
-        
-        Please include:
-        1. An interpretation of the thumbnail image
-        2. A hypothesis about the video content based on the title, description, and thumbnail
-        3. Key points or main topics that might be discussed in the video
-        4. An analysis of the video's popularity based on views and likes
-        5. Any interesting observations or insights
-        """
-    ]
+def download_video(video_url, output_path):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'outtmpl': output_path,
+    }
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download([video_url])
+
+def analyze_video(video_details, thumbnail_image, video_file):
+    # Upload thumbnail image
+    thumbnail_file = genai.upload_file(thumbnail_image)
+
+    # Upload video file
+    video_file = genai.upload_file(video_file)
+
+    # Wait for video processing
+    while video_file.state.name == "PROCESSING":
+        print("Processing video...")
+        time.sleep(5)
+        video_file = genai.get_file(video_file.name)
+
+    prompt = f"""
+    Analyze this video and provide a summary based on the following information:
     
-    response = model.generate_content(prompt)
+    Title: {video_details['title']}
+    Description: {video_details['description']}
+    Views: {video_details['view_count']}
+    Likes: {video_details['like_count']}
+    
+    Please include:
+    1. An interpretation of the thumbnail image
+    2. A hypothesis about the video content based on the title, description, and thumbnail
+    3. Key points or main topics discussed in the video
+    4. An analysis of the video's popularity based on views and likes
+    5. Any interesting observations or insights from the video content
+    """
+
+    response = model.generate_content([thumbnail_file, video_file, prompt])
     return response.text
 
 def main():
-    video_id = input("Geben Sie die YouTube-Video-ID ein: ")
+    video_url = input("Geben Sie die YouTube-Video-URL ein: ")
+    video_id = video_url.split("v=")[1]
     video_details = get_video_details(video_id)
     
     if video_details:
         print("Video gefunden. Hole Thumbnail...")
         thumbnail_image = get_thumbnail_image(video_details['thumbnail_url'])
         
+        print("Lade Video herunter...")
+        output_path = f"{video_id}.mp3"
+        download_video(video_url, output_path)
+        
         print("Analysiere Video...")
-        analysis = analyze_video(video_details, thumbnail_image)
+        analysis = analyze_video(video_details, thumbnail_image, output_path)
         
         print("\nZusammenfassung und Analyse:")
         print(analysis)
+
+        # Cleanup
+        os.remove(output_path)
     else:
         print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
 
