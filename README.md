@@ -19,14 +19,21 @@ Before using the Video Summarizer, make sure you have set your Groq API key as a
    ```
 3. Close and reopen any command prompt windows for the change to take effect
 
-To use the Video Summarizer, create an instance of the `VideoSummarizer` class with a video URL and optionally specify the number of frames to extract:
+To use the Video Summarizer, you can either:
 
-```python
-from VideoSummarizer import VideoSummarizer
+1. Run the script directly:
+   ```
+   python VideoSummarizer.py
+   ```
+   You will be prompted to enter the video URL.
 
-summarizer = VideoSummarizer("https://example.com/video.mp4", num_frames=5)
-summary = summarizer.summarize()
-```
+2. Or, use it in your own Python script:
+   ```python
+   from VideoSummarizer import VideoSummarizer
+
+   summarizer = VideoSummarizer("https://example.com/video.mp4", num_frames=5)
+   summary = summarizer.summarize()
+   ```
 
 ## Requirements
 

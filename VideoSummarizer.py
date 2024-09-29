@@ -77,8 +77,8 @@ class VideoSummarizer:
         return summary
 
 if __name__ == "__main__":
-    # Example usage
-    video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    video_url = input("Please enter the video URL: ")
     summarizer = VideoSummarizer(video_url)
+    print("Summarizing video...")
     summary = summarizer.summarize()
     print("\n\nFinal Summary:", summary)
