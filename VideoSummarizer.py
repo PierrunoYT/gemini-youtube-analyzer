@@ -68,17 +68,24 @@ def download_video(video_url, output_path):
         ydl.download([video_url])
 
 def analyze_video(video_details, thumbnail_path, video_file_path):
-    # Upload thumbnail image
-    thumbnail_file = genai.upload_file(thumbnail_path)
+    try:
+        # Upload thumbnail image
+        thumbnail_file = genai.upload_file(thumbnail_path)
 
-    # Upload video file
-    video_file = genai.upload_file(video_file_path)
+        # Upload video file
+        video_file = genai.upload_file(video_file_path)
 
-    # Wait for video processing
-    while video_file.state.name == "PROCESSING":
-        print("Processing video...")
-        time.sleep(5)
-        video_file = genai.get_file(video_file.name)
+        # Wait for video processing
+        while video_file.state.name == "PROCESSING":
+            print("Processing video...")
+            time.sleep(5)
+            video_file = genai.get_file(video_file.name)
+    except FileNotFoundError as e:
+        print(f"Error: File not found. Please check if the file exists: {e.filename}")
+        return "Unable to analyze video due to missing file."
+    except Exception as e:
+        print(f"An error occurred while processing the files: {str(e)}")
+        return "Unable to analyze video due to an unexpected error."
 
     prompt = f"""
     Analyze this video and provide a summary based on the following information:
@@ -131,13 +138,15 @@ def main():
             download_video(f"https://www.youtube.com/watch?v={video_id}", output_path)
             
             print("Analysiere Video...")
-            analysis = analyze_video(video_details, thumbnail_path, output_path)
+            # The actual output file has .mp3.mp3 extension due to yt-dlp's behavior
+            actual_output_path = f"{output_path}.mp3"
+            analysis = analyze_video(video_details, thumbnail_path, actual_output_path)
             
             print("\nZusammenfassung und Analyse:")
             print(analysis)
 
             # Cleanup
-            os.remove(output_path)
+            os.remove(actual_output_path)
             os.remove(thumbnail_path)
         else:
             print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
