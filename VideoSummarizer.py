@@ -13,7 +13,7 @@ class VideoSummarizer:
         self.num_frames = num_frames
         api_key = os.environ.get('GROQ_API_KEY')
         if not api_key:
-            raise ValueError("GROQ_API_KEY environment variable is not set. Use 'setx GROQ_API_KEY your_api_key_here /M' to set it.")
+            raise ValueError("GROQ_API_KEY environment variable is not set. Use 'setx GROQ_API_KEY your_api_key_here' to set it.")
         self.client = Groq(api_key=api_key)
 
     def extract_frames(self):

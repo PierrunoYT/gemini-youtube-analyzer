@@ -15,7 +15,7 @@ Before using the Video Summarizer, make sure you have set your Groq API key as a
 1. Open a Command Prompt with administrator privileges
 2. Run the following command, replacing `your_api_key_here` with your actual Groq API key:
    ```
-   setx GROQ_API_KEY "your_api_key_here" /M
+   setx GROQ_API_KEY "your_api_key_here"
    ```
 3. Close and reopen any command prompt windows for the change to take effect
 
@@ -53,7 +53,7 @@ To use the Video Summarizer, you can either:
    - Open a Command Prompt with administrator privileges
    - Run the following command, replacing `your_api_key_here` with your actual Groq API key:
      ```
-     setx GROQ_API_KEY "your_api_key_here" /M
+     setx GROQ_API_KEY "your_api_key_here"
      ```
    - Close and reopen any command prompt windows for the change to take effect
 
