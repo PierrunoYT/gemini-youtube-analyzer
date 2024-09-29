@@ -5,12 +5,16 @@ from groq import Groq
 from PIL import Image
 import io
 import base64
+import os
 
 class VideoSummarizer:
     def __init__(self, video_url, num_frames=5):
         self.video_url = video_url
         self.num_frames = num_frames
-        self.client = Groq()
+        api_key = os.environ.get('GROQ_API_KEY')
+        if not api_key:
+            raise ValueError("GROQ_API_KEY environment variable is not set. Use 'setx GROQ_API_KEY your_api_key_here /M' to set it.")
+        self.client = Groq(api_key=api_key)
 
     def extract_frames(self):
         ydl_opts = {'outtmpl': 'video.%(ext)s'}

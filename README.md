@@ -10,6 +10,15 @@ This project provides a tool to summarize videos by extracting key frames and ge
 
 ## Usage
 
+Before using the Video Summarizer, make sure you have set your Groq API key as an environment variable:
+
+1. Open a Command Prompt with administrator privileges
+2. Run the following command, replacing `your_api_key_here` with your actual Groq API key:
+   ```
+   setx GROQ_API_KEY "your_api_key_here" /M
+   ```
+3. Close and reopen any command prompt windows for the change to take effect
+
 To use the Video Summarizer, create an instance of the `VideoSummarizer` class with a video URL and optionally specify the number of frames to extract:
 
 ```python
