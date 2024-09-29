@@ -107,6 +107,8 @@ def extract_video_id(url):
         return url.split('v=')[-1].split('&')[0]
     elif 'youtube.com/shorts' in url:
         return url.split('/')[-1]
+    elif url.startswith('v='):
+        return url.split('v=')[-1].split('&')[0]
     else:
         raise ValueError("Ungültige YouTube-URL")
 
@@ -114,6 +116,7 @@ def main():
     video_url = input("Geben Sie die YouTube-Video-URL ein: ")
     try:
         video_id = extract_video_id(video_url)
+        print(f"Extrahierte Video-ID: {video_id}")
         video_details = get_video_details(video_id)
         
         if video_details:
@@ -122,7 +125,7 @@ def main():
             
             print("Lade Video herunter...")
             output_path = f"{video_id}.mp3"
-            download_video(video_url, output_path)
+            download_video(f"https://www.youtube.com/watch?v={video_id}", output_path)
             
             print("Analysiere Video...")
             analysis = analyze_video(video_details, thumbnail_image, output_path)
@@ -135,7 +138,8 @@ def main():
         else:
             print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
     except ValueError as e:
-        print(f"Fehler: {str(e)}")
+        print(f"Fehler beim Extrahieren der Video-ID: {str(e)}")
+        print(f"Eingegebene URL: {video_url}")
     except Exception as e:
         print(f"Ein unerwarteter Fehler ist aufgetreten: {str(e)}")
 
