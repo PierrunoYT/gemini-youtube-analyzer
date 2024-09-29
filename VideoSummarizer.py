@@ -27,8 +27,8 @@ class VideoSummarizer:
         self.api_key = os.environ.get('OPENROUTER_API_KEY')
         if not self.api_key:
             raise ValueError("OPENROUTER_API_KEY environment variable is not set. Use 'setx OPENROUTER_API_KEY your_api_key_here' to set it.")
-        self.site_url = os.environ.get('YOUR_SITE_URL', 'http://localhost')
-        self.site_name = os.environ.get('YOUR_SITE_NAME', 'VideoSummarizer')
+        self.site_url = 'https://github.com/yourusername/video-summarizer'
+        self.site_name = 'VideoSummarizer'
 
     def extract_frames(self):
         ydl_opts = {'outtmpl': 'video.%(ext)s'}

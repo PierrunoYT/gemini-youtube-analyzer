@@ -39,8 +39,6 @@ Video Summarizer is a Python tool that automatically generates concise summaries
    - Run the following commands, replacing the placeholders with your actual information:
      ```
      setx OPENROUTER_API_KEY "your_api_key_here"
-     setx YOUR_SITE_URL "https://your-site-url.com"
-     setx YOUR_SITE_NAME "Your Site Name"
      ```
    - Close and reopen any command prompt windows for the changes to take effect
 
