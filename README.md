@@ -19,7 +19,7 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/video-summarizer.git
+   git clone https://github.com/PierrunoYT/gemini-youtube-analyzer.git
    cd video-summarizer
    ```
 
