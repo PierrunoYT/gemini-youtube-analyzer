@@ -1,0 +1,80 @@
+import yt_dlp
+import cv2
+import numpy as np
+from groq import Groq
+from PIL import Image
+import io
+import base64
+
+class VideoSummarizer:
+    def __init__(self, video_url, num_frames=5):
+        self.video_url = video_url
+        self.num_frames = num_frames
+        self.client = Groq()
+
+    def extract_frames(self):
+        ydl_opts = {'outtmpl': 'video.%(ext)s'}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(self.video_url, download=False)
+            duration = info['duration']
+            ydl.download([self.video_url])
+
+        video = cv2.VideoCapture('video.mp4')
+        frames = []
+        for i in range(self.num_frames):
+            video.set(cv2.CAP_PROP_POS_MSEC, (duration * 1000 * i) / self.num_frames)
+            success, image = video.read()
+            if success:
+                frames.append(image)
+        video.release()
+        return frames
+
+    @staticmethod
+    def frames_to_base64(frames):
+        encoded_frames = []
+        for frame in frames:
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            buffered = io.BytesIO()
+            img.save(buffered, format="JPEG")
+            encoded_frames.append(base64.b64encode(buffered.getvalue()).decode('utf-8'))
+        return encoded_frames
+
+    def summarize(self):
+        frames = self.extract_frames()
+        encoded_frames = self.frames_to_base64(frames)
+        
+        prompt = f"""Analyze the following video frames and provide a concise summary of the video content:
+
+        {' '.join([f'[Frame {i+1}: data:image/jpeg;base64,{frame}]' for i, frame in enumerate(encoded_frames)])}
+
+        Based on these key frames, summarize the main points and content of the video."""
+
+        completion = self.client.chat.completions.create(
+            model="llama-3.2-90b-text-preview",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+
+        summary = ""
+        for chunk in completion:
+            content = chunk.choices[0].delta.content or ""
+            summary += content
+            print(content, end="", flush=True)
+        
+        return summary
+
+if __name__ == "__main__":
+    # Example usage
+    video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    summarizer = VideoSummarizer(video_url)
+    summary = summarizer.summarize()
+    print("\n\nFinal Summary:", summary)
