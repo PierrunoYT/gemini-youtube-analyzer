@@ -8,9 +8,17 @@ import base64
 import os
 from datetime import datetime
 import logging
+import time
+import random
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def exponential_backoff(attempt, max_attempts=5, base_delay=1, max_delay=60):
+    if attempt >= max_attempts:
+        raise Exception("Max retry attempts reached")
+    delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
+    time.sleep(delay)
 
 class VideoSummarizer:
     def __init__(self, video_url, num_frames=5):
@@ -60,41 +68,47 @@ class VideoSummarizer:
         return encoded_frames
 
     def summarize(self):
-        try:
-            frames = self.extract_frames()
-            encoded_frames = self.frames_to_base64(frames)
-            
-            prompt = f"""Analyze the following video frames and provide a concise summary of the video content:
+        frames = self.extract_frames()
+        encoded_frames = self.frames_to_base64(frames)
+        
+        prompt = f"""Analyze the following video frames and provide a concise summary of the video content:
 
-            {' '.join([f'[Frame {i+1}: data:image/jpeg;base64,{frame}]' for i, frame in enumerate(encoded_frames)])}
+        {' '.join([f'[Frame {i+1}: data:image/jpeg;base64,{frame}]' for i, frame in enumerate(encoded_frames)])}
 
-            Based on these key frames, summarize the main points and content of the video."""
+        Based on these key frames, summarize the main points and content of the video."""
 
-            completion = self.client.chat.completions.create(
-                model="llama-3.2-90b-text-preview",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                temperature=0.7,
-                max_tokens=1024,
-                top_p=1,
-                stream=True,
-                stop=None,
-            )
+        for attempt in range(5):
+            try:
+                completion = self.client.chat.completions.create(
+                    model="llama-3.2-90b-text-preview",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    temperature=0.7,
+                    max_tokens=1024,
+                    top_p=1,
+                    stream=True,
+                    stop=None,
+                )
 
-            summary = ""
-            for chunk in completion:
-                content = chunk.choices[0].delta.content or ""
-                summary += content
-                print(content, end="", flush=True)
-            
-            return summary
-        except Exception as e:
-            logger.error(f"An error occurred during summarization: {str(e)}")
-            return f"An error occurred: {str(e)}"
+                summary = ""
+                for chunk in completion:
+                    content = chunk.choices[0].delta.content or ""
+                    summary += content
+                    print(content, end="", flush=True)
+                
+                return summary
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed: {str(e)}")
+                if "rate_limit_exceeded" in str(e):
+                    exponential_backoff(attempt)
+                else:
+                    raise e
+        
+        raise Exception("Failed to summarize after multiple attempts")
 
     def save_summary_to_markdown(self, summary):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

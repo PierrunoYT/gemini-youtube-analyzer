@@ -9,6 +9,7 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 - Utilize Groq's powerful language model for content analysis
 - Generate concise summaries of video content
 - Easy-to-use command-line interface
+- Implements retry mechanism with exponential backoff for API rate limiting
 
 ## Requirements
 
