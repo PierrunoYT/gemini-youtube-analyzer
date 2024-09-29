@@ -34,9 +34,9 @@ Video Summarizer is a Python tool that automatically generates concise summaries
    pip install yt-dlp opencv-python-headless numpy requests Pillow
    ```
 
-3. Set up your OpenRouter API key and site information:
+3. Set up your OpenRouter API key:
    - Open a Command Prompt
-   - Run the following commands, replacing the placeholders with your actual information:
+   - Run the following command, replacing the placeholder with your actual API key:
      ```
      setx OPENROUTER_API_KEY "your_api_key_here"
      ```
