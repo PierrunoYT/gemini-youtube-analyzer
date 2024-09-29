@@ -33,6 +33,13 @@ summary = summarizer.summarize()
    ```
    pip install opencv-python requests
    ```
+3. Set up your Groq API key:
+   - Open a Command Prompt with administrator privileges
+   - Run the following command, replacing `your_api_key_here` with your actual Groq API key:
+     ```
+     setx GROQ_API_KEY "your_api_key_here" /M
+     ```
+   - Close and reopen any command prompt windows for the change to take effect
 
 ## License
 
