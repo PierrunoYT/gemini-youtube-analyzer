@@ -1,15 +1,14 @@
 # Video Summarizer
 
-Video Summarizer is a Python tool that automatically generates concise summaries of video content using advanced AI techniques. It extracts key frames from videos and uses the Groq API to analyze and summarize the content.
+Video Summarizer is a Python tool that automatically generates concise summaries of YouTube video content using advanced AI techniques. It utilizes the Google Gemini API to analyze both visual and audio content of the video.
 
 ## Features
 
-- Extract frames from videos using YouTube URLs
-- Convert video frames to base64 format for AI processing
-- Utilize Groq's powerful language model for content analysis
-- Generate concise summaries of video content
+- Download YouTube videos and extract audio
+- Analyze video thumbnails and audio content
+- Utilize Google's Gemini AI for comprehensive content analysis
+- Generate detailed summaries of video content
 - Easy-to-use command-line interface
-- Implements retry mechanism with exponential backoff for API rate limiting
 
 ## Requirements
 
@@ -28,17 +27,13 @@ Video Summarizer is a Python tool that automatically generates concise summaries
    ```
    pip install -r requirements.txt
    ```
-   
-   If you encounter any issues, you can install the dependencies individually:
-   ```
-   pip install yt-dlp opencv-python-headless numpy requests Pillow
-   ```
 
-3. Set up your OpenRouter API key:
+3. Set up your API keys:
    - Open a Command Prompt
-   - Run the following command, replacing the placeholder with your actual API key:
+   - Run the following commands, replacing the placeholders with your actual API keys:
      ```
-     setx OPENROUTER_API_KEY "your_api_key_here"
+     setx YOUTUBE_API_KEY "your_youtube_api_key_here"
+     setx GEMINI_API_KEY "your_gemini_api_key_here"
      ```
    - Close and reopen any command prompt windows for the changes to take effect
 
@@ -51,27 +46,22 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 
 2. When prompted, enter the URL of the YouTube video you want to summarize.
 
-3. The tool will extract frames, process them, and generate a summary of the video content.
+3. The tool will download the video, extract the audio, analyze the content, and generate a summary.
 
-4. The summary will be saved to a markdown file in the same directory as the script.
+4. The summary will be displayed in the console.
 
 ## How It Works
 
-1. The tool downloads the video using the provided URL.
-2. It extracts a specified number of frames (default is 5) from the video.
-3. The frames are converted to base64 format.
-4. The Groq API is called with the frame data to analyze the content.
-5. A summary is generated based on the AI's analysis of the key frames.
-6. The summary is saved to a markdown file with a timestamp in the filename.
-
-## Configuration
-
-You can adjust the number of frames extracted by modifying the `num_frames` parameter when initializing the `VideoSummarizer` class.
+1. The tool uses the YouTube API to fetch video details and thumbnail.
+2. It downloads the video's audio using yt-dlp.
+3. The thumbnail image and audio file are uploaded to the Google Gemini API.
+4. The Gemini AI model analyzes both the visual and audio content.
+5. A comprehensive summary is generated based on the AI's analysis.
 
 ## Troubleshooting
 
-- If you encounter an "OPENROUTER_API_KEY environment variable is not set" error, make sure you've correctly set up your API key as described in the installation steps.
-- Ensure you have a stable internet connection for downloading videos and accessing the Groq API.
+- If you encounter API key errors, make sure you've correctly set up your YouTube and Gemini API keys as described in the installation steps.
+- Ensure you have a stable internet connection for downloading videos and accessing the APIs.
 
 ## Contributing
 
@@ -90,10 +80,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) for video downloading capabilities
-- [OpenCV](https://opencv.org/) for image processing
-- [OpenRouter](https://openrouter.ai/) for providing access to various AI language models
-- [Google Gemini](https://deepmind.google/technologies/gemini/) for the powerful language model used in this project
+- [Google Gemini API](https://deepmind.google/technologies/gemini/) for the powerful AI model used in this project
+- [YouTube Data API](https://developers.google.com/youtube/v3) for accessing video metadata
 
 ## Disclaimer
 
-This tool is for educational and research purposes only. Ensure you have the right to use and summarize the video content you're processing.
+This tool is for educational and research purposes only. Ensure you have the right to use and summarize the video content you're processing. Respect YouTube's terms of service and the video creators' rights when using this tool.
