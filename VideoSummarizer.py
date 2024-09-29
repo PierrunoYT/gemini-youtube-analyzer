@@ -67,14 +67,12 @@ def download_video(video_url, output_path):
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
-def analyze_video(video_details, thumbnail_image, video_file_path):
+def analyze_video(video_details, thumbnail_path, video_file_path):
     # Upload thumbnail image
-    with open(thumbnail_image, 'rb') as f:
-        thumbnail_file = genai.upload_file(f)
+    thumbnail_file = genai.upload_file(thumbnail_path)
 
     # Upload video file
-    with open(video_file_path, 'rb') as f:
-        video_file = genai.upload_file(f)
+    video_file = genai.upload_file(video_file_path)
 
     # Wait for video processing
     while video_file.state.name == "PROCESSING":
