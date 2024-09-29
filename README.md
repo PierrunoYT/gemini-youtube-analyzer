@@ -27,6 +27,11 @@ Video Summarizer is a Python tool that automatically generates concise summaries
    ```
    pip install -r requirements.txt
    ```
+   
+   If you encounter any issues, you can install the dependencies individually:
+   ```
+   pip install yt-dlp opencv-python-headless numpy groq Pillow
+   ```
 
 3. Set up your Groq API key:
    - Open a Command Prompt
