@@ -67,12 +67,14 @@ def download_video(video_url, output_path):
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
-def analyze_video(video_details, thumbnail_image, video_file):
+def analyze_video(video_details, thumbnail_image, video_file_path):
     # Upload thumbnail image
-    thumbnail_file = genai.upload_file(thumbnail_image)
+    with open(thumbnail_image, 'rb') as f:
+        thumbnail_file = genai.upload_file(f)
 
     # Upload video file
-    video_file = genai.upload_file(video_file)
+    with open(video_file_path, 'rb') as f:
+        video_file = genai.upload_file(f)
 
     # Wait for video processing
     while video_file.state.name == "PROCESSING":
@@ -121,20 +123,24 @@ def main():
         
         if video_details:
             print("Video gefunden. Hole Thumbnail...")
-            thumbnail_image = get_thumbnail_image(video_details['thumbnail_url'])
+            thumbnail_data = get_thumbnail_image(video_details['thumbnail_url'])
+            thumbnail_path = f"{video_id}_thumbnail.png"
+            with open(thumbnail_path, 'wb') as f:
+                f.write(thumbnail_data)
             
             print("Lade Video herunter...")
             output_path = f"{video_id}.mp3"
             download_video(f"https://www.youtube.com/watch?v={video_id}", output_path)
             
             print("Analysiere Video...")
-            analysis = analyze_video(video_details, thumbnail_image, output_path)
+            analysis = analyze_video(video_details, thumbnail_path, output_path)
             
             print("\nZusammenfassung und Analyse:")
             print(analysis)
 
             # Cleanup
             os.remove(output_path)
+            os.remove(thumbnail_path)
         else:
             print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
     except ValueError as e:
