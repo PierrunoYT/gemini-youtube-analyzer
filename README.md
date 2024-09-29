@@ -52,6 +52,8 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 
 3. The tool will extract frames, process them, and generate a summary of the video content.
 
+4. The summary will be saved to a markdown file in the same directory as the script.
+
 ## How It Works
 
 1. The tool downloads the video using the provided URL.
@@ -59,6 +61,7 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 3. The frames are converted to base64 format.
 4. The Groq API is called with the frame data to analyze the content.
 5. A summary is generated based on the AI's analysis of the key frames.
+6. The summary is saved to a markdown file with a timestamp in the filename.
 
 ## Configuration
 

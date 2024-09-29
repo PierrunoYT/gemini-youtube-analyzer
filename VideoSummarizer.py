@@ -6,6 +6,7 @@ from PIL import Image
 import io
 import base64
 import os
+from datetime import datetime
 
 class VideoSummarizer:
     def __init__(self, video_url, num_frames=5):
@@ -76,9 +77,19 @@ class VideoSummarizer:
         
         return summary
 
+    def save_summary_to_markdown(self, summary):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"video_summary_{timestamp}.md"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(f"# Video Summary\n\n")
+            f.write(f"Video URL: {self.video_url}\n\n")
+            f.write(f"## Summary\n\n{summary}\n")
+        return filename
+
 if __name__ == "__main__":
     video_url = input("Please enter the video URL: ")
     summarizer = VideoSummarizer(video_url)
     print("Summarizing video...")
     summary = summarizer.summarize()
-    print("\n\nFinal Summary:", summary)
+    filename = summarizer.save_summary_to_markdown(summary)
+    print(f"\n\nSummary saved to: {filename}")
