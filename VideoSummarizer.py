@@ -99,29 +99,45 @@ def analyze_video(video_details, thumbnail_image, video_file):
     response = model.generate_content([thumbnail_file, video_file, prompt])
     return response.text
 
+def extract_video_id(url):
+    # Handle various YouTube URL formats
+    if 'youtu.be' in url:
+        return url.split('/')[-1]
+    elif 'youtube.com/watch' in url:
+        return url.split('v=')[-1].split('&')[0]
+    elif 'youtube.com/shorts' in url:
+        return url.split('/')[-1]
+    else:
+        raise ValueError("Ungültige YouTube-URL")
+
 def main():
     video_url = input("Geben Sie die YouTube-Video-URL ein: ")
-    video_id = video_url.split("v=")[1]
-    video_details = get_video_details(video_id)
-    
-    if video_details:
-        print("Video gefunden. Hole Thumbnail...")
-        thumbnail_image = get_thumbnail_image(video_details['thumbnail_url'])
+    try:
+        video_id = extract_video_id(video_url)
+        video_details = get_video_details(video_id)
         
-        print("Lade Video herunter...")
-        output_path = f"{video_id}.mp3"
-        download_video(video_url, output_path)
-        
-        print("Analysiere Video...")
-        analysis = analyze_video(video_details, thumbnail_image, output_path)
-        
-        print("\nZusammenfassung und Analyse:")
-        print(analysis)
+        if video_details:
+            print("Video gefunden. Hole Thumbnail...")
+            thumbnail_image = get_thumbnail_image(video_details['thumbnail_url'])
+            
+            print("Lade Video herunter...")
+            output_path = f"{video_id}.mp3"
+            download_video(video_url, output_path)
+            
+            print("Analysiere Video...")
+            analysis = analyze_video(video_details, thumbnail_image, output_path)
+            
+            print("\nZusammenfassung und Analyse:")
+            print(analysis)
 
-        # Cleanup
-        os.remove(output_path)
-    else:
-        print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
+            # Cleanup
+            os.remove(output_path)
+        else:
+            print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
+    except ValueError as e:
+        print(f"Fehler: {str(e)}")
+    except Exception as e:
+        print(f"Ein unerwarteter Fehler ist aufgetreten: {str(e)}")
 
 if __name__ == "__main__":
     main()
