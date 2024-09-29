@@ -1,5 +1,5 @@
 yt-dlp
 opencv-python-headless
 numpy
-groq
+requests
 Pillow

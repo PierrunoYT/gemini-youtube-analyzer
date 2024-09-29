@@ -31,16 +31,18 @@ Video Summarizer is a Python tool that automatically generates concise summaries
    
    If you encounter any issues, you can install the dependencies individually:
    ```
-   pip install yt-dlp opencv-python-headless numpy groq Pillow
+   pip install yt-dlp opencv-python-headless numpy requests Pillow
    ```
 
-3. Set up your Groq API key:
+3. Set up your OpenRouter API key and site information:
    - Open a Command Prompt
-   - Run the following command, replacing `your_api_key_here` with your actual Groq API key:
+   - Run the following commands, replacing the placeholders with your actual information:
      ```
-     setx GROQ_API_KEY "your_api_key_here"
+     setx OPENROUTER_API_KEY "your_api_key_here"
+     setx YOUR_SITE_URL "https://your-site-url.com"
+     setx YOUR_SITE_NAME "Your Site Name"
      ```
-   - Close and reopen any command prompt windows for the change to take effect
+   - Close and reopen any command prompt windows for the changes to take effect
 
 ## Usage
 
@@ -70,7 +72,7 @@ You can adjust the number of frames extracted by modifying the `num_frames` para
 
 ## Troubleshooting
 
-- If you encounter a "GROQ_API_KEY environment variable is not set" error, make sure you've correctly set up your API key as described in the installation steps.
+- If you encounter an "OPENROUTER_API_KEY environment variable is not set" error, make sure you've correctly set up your API key as described in the installation steps.
 - Ensure you have a stable internet connection for downloading videos and accessing the Groq API.
 
 ## Contributing
@@ -91,7 +93,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) for video downloading capabilities
 - [OpenCV](https://opencv.org/) for image processing
-- [Groq](https://groq.com/) for providing the AI language model API
+- [OpenRouter](https://openrouter.ai/) for providing access to various AI language models
+- [Google Gemini](https://deepmind.google/technologies/gemini/) for the powerful language model used in this project
 
 ## Disclaimer
 

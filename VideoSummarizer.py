@@ -1,7 +1,7 @@
 import yt_dlp
 import cv2
 import numpy as np
-from groq import Groq
+import requests
 from PIL import Image
 import io
 import base64
@@ -24,10 +24,11 @@ class VideoSummarizer:
     def __init__(self, video_url, num_frames=5):
         self.video_url = video_url
         self.num_frames = num_frames
-        api_key = os.environ.get('GROQ_API_KEY')
-        if not api_key:
-            raise ValueError("GROQ_API_KEY environment variable is not set. Use 'setx GROQ_API_KEY your_api_key_here' to set it.")
-        self.client = Groq(api_key=api_key)
+        self.api_key = os.environ.get('OPENROUTER_API_KEY')
+        if not self.api_key:
+            raise ValueError("OPENROUTER_API_KEY environment variable is not set. Use 'setx OPENROUTER_API_KEY your_api_key_here' to set it.")
+        self.site_url = os.environ.get('YOUR_SITE_URL', 'http://localhost')
+        self.site_name = os.environ.get('YOUR_SITE_NAME', 'VideoSummarizer')
 
     def extract_frames(self):
         ydl_opts = {'outtmpl': 'video.%(ext)s'}
@@ -71,35 +72,49 @@ class VideoSummarizer:
         frames = self.extract_frames()
         encoded_frames = self.frames_to_base64(frames)
         
-        prompt = f"""Analyze the following video frames and provide a concise summary of the video content:
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Analyze the following video frames and provide a concise summary of the video content:"
+                    }
+                ]
+            }
+        ]
 
-        {' '.join([f'[Frame {i+1}: data:image/jpeg;base64,{frame}]' for i, frame in enumerate(encoded_frames)])}
+        for i, frame in enumerate(encoded_frames):
+            messages[0]["content"].append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{frame}"
+                }
+            })
 
-        Based on these key frames, summarize the main points and content of the video."""
+        messages[0]["content"].append({
+            "type": "text",
+            "text": "Based on these key frames, summarize the main points and content of the video."
+        })
 
         for attempt in range(5):
             try:
-                completion = self.client.chat.completions.create(
-                    model="llama-3.2-90b-text-preview",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
-                    ],
-                    temperature=0.7,
-                    max_tokens=1024,
-                    top_p=1,
-                    stream=True,
-                    stop=None,
+                response = requests.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "HTTP-Referer": self.site_url,
+                        "X-Title": self.site_name,
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "google/gemini-pro-1.5",
+                        "messages": messages
+                    }
                 )
-
-                summary = ""
-                for chunk in completion:
-                    content = chunk.choices[0].delta.content or ""
-                    summary += content
-                    print(content, end="", flush=True)
-                
+                response.raise_for_status()
+                summary = response.json()['choices'][0]['message']['content']
+                print(summary)
                 return summary
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed: {str(e)}")
