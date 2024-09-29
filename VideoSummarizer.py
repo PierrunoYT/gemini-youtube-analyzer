@@ -7,6 +7,10 @@ import io
 import base64
 import os
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class VideoSummarizer:
     def __init__(self, video_url, num_frames=5):
@@ -20,18 +24,29 @@ class VideoSummarizer:
     def extract_frames(self):
         ydl_opts = {'outtmpl': 'video.%(ext)s'}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(self.video_url, download=False)
+            info = ydl.extract_info(self.video_url, download=True)
             duration = info['duration']
-            ydl.download([self.video_url])
+            filename = ydl.prepare_filename(info)
+            logger.info(f"Downloaded video: {filename}")
 
-        video = cv2.VideoCapture('video.mp4')
+        video = cv2.VideoCapture(filename)
+        if not video.isOpened():
+            raise ValueError(f"Unable to open video file: {filename}")
+
         frames = []
         for i in range(self.num_frames):
             video.set(cv2.CAP_PROP_POS_MSEC, (duration * 1000 * i) / self.num_frames)
             success, image = video.read()
             if success:
                 frames.append(image)
+            else:
+                logger.warning(f"Failed to read frame {i+1}")
         video.release()
+
+        if not frames:
+            raise ValueError("No frames were extracted from the video")
+
+        logger.info(f"Extracted {len(frames)} frames from the video")
         return frames
 
     @staticmethod
@@ -45,37 +60,41 @@ class VideoSummarizer:
         return encoded_frames
 
     def summarize(self):
-        frames = self.extract_frames()
-        encoded_frames = self.frames_to_base64(frames)
-        
-        prompt = f"""Analyze the following video frames and provide a concise summary of the video content:
+        try:
+            frames = self.extract_frames()
+            encoded_frames = self.frames_to_base64(frames)
+            
+            prompt = f"""Analyze the following video frames and provide a concise summary of the video content:
 
-        {' '.join([f'[Frame {i+1}: data:image/jpeg;base64,{frame}]' for i, frame in enumerate(encoded_frames)])}
+            {' '.join([f'[Frame {i+1}: data:image/jpeg;base64,{frame}]' for i, frame in enumerate(encoded_frames)])}
 
-        Based on these key frames, summarize the main points and content of the video."""
+            Based on these key frames, summarize the main points and content of the video."""
 
-        completion = self.client.chat.completions.create(
-            model="llama-3.2-90b-text-preview",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.7,
-            max_tokens=1024,
-            top_p=1,
-            stream=True,
-            stop=None,
-        )
+            completion = self.client.chat.completions.create(
+                model="llama-3.2-90b-text-preview",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.7,
+                max_tokens=1024,
+                top_p=1,
+                stream=True,
+                stop=None,
+            )
 
-        summary = ""
-        for chunk in completion:
-            content = chunk.choices[0].delta.content or ""
-            summary += content
-            print(content, end="", flush=True)
-        
-        return summary
+            summary = ""
+            for chunk in completion:
+                content = chunk.choices[0].delta.content or ""
+                summary += content
+                print(content, end="", flush=True)
+            
+            return summary
+        except Exception as e:
+            logger.error(f"An error occurred during summarization: {str(e)}")
+            return f"An error occurred: {str(e)}"
 
     def save_summary_to_markdown(self, summary):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -88,8 +107,12 @@ class VideoSummarizer:
 
 if __name__ == "__main__":
     video_url = input("Please enter the video URL: ")
-    summarizer = VideoSummarizer(video_url)
-    print("Summarizing video...")
-    summary = summarizer.summarize()
-    filename = summarizer.save_summary_to_markdown(summary)
-    print(f"\n\nSummary saved to: {filename}")
+    try:
+        summarizer = VideoSummarizer(video_url)
+        print("Summarizing video...")
+        summary = summarizer.summarize()
+        filename = summarizer.save_summary_to_markdown(summary)
+        print(f"\n\nSummary saved to: {filename}")
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
