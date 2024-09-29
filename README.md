@@ -4,8 +4,8 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 
 ## Features
 
-- Download YouTube videos and extract audio
-- Analyze video thumbnails and audio content
+- Download YouTube videos
+- Analyze video thumbnails and content
 - Utilize Google's Gemini AI for comprehensive content analysis
 - Generate detailed summaries of video content
 - Easy-to-use command-line interface
@@ -28,11 +28,10 @@ Video Summarizer is a Python tool that automatically generates concise summaries
    pip install -r requirements.txt
    ```
 
-3. Set up your API keys:
+3. Set up your API key:
    - Open a Command Prompt
-   - Run the following commands, replacing the placeholders with your actual API keys:
+   - Run the following command, replacing the placeholder with your actual API key:
      ```
-     setx YOUTUBE_API_KEY "your_youtube_api_key_here"
      setx GEMINI_API_KEY "your_gemini_api_key_here"
      ```
    - Close and reopen any command prompt windows for the changes to take effect
@@ -46,22 +45,21 @@ Video Summarizer is a Python tool that automatically generates concise summaries
 
 2. When prompted, enter the URL of the YouTube video you want to summarize.
 
-3. The tool will download the video, extract the audio, analyze the content, and generate a summary.
+3. The tool will download the video, analyze the content, and generate a summary.
 
 4. The summary will be displayed in the console.
 
 ## How It Works
 
-1. The tool uses the YouTube API to fetch video details and thumbnail.
-2. It downloads the video's audio using yt-dlp.
-3. The thumbnail image and audio file are uploaded to the Google Gemini API.
-4. The Gemini AI model analyzes both the visual and audio content.
-5. A comprehensive summary is generated based on the AI's analysis.
+1. The tool uses yt-dlp to fetch video details and download the video.
+2. The thumbnail image and video file are uploaded to the Google Gemini API.
+3. The Gemini AI model analyzes both the visual and audio content.
+4. A comprehensive summary is generated based on the AI's analysis.
 
 ## Troubleshooting
 
-- If you encounter API key errors, make sure you've correctly set up your YouTube and Gemini API keys as described in the installation steps.
-- Ensure you have a stable internet connection for downloading videos and accessing the APIs.
+- If you encounter API key errors, make sure you've correctly set up your Gemini API key as described in the installation steps.
+- Ensure you have a stable internet connection for downloading videos and accessing the API.
 
 ## Contributing
 
@@ -81,7 +79,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) for video downloading capabilities
 - [Google Gemini API](https://deepmind.google/technologies/gemini/) for the powerful AI model used in this project
-- [YouTube Data API](https://developers.google.com/youtube/v3) for accessing video metadata
 
 ## Disclaimer
 
