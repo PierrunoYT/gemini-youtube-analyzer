@@ -56,12 +56,7 @@ def get_thumbnail_image(url):
 
 def download_video(video_url, output_path):
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
         'outtmpl': output_path,
     }
     with YoutubeDL(ydl_opts) as ydl:
@@ -134,19 +129,17 @@ def main():
                 f.write(thumbnail_data)
             
             print("Lade Video herunter...")
-            output_path = f"{video_id}.mp3"
+            output_path = f"{video_id}.mp4"
             download_video(f"https://www.youtube.com/watch?v={video_id}", output_path)
             
             print("Analysiere Video...")
-            # The actual output file has .mp3.mp3 extension due to yt-dlp's behavior
-            actual_output_path = f"{output_path}.mp3"
-            analysis = analyze_video(video_details, thumbnail_path, actual_output_path)
+            analysis = analyze_video(video_details, thumbnail_path, output_path)
             
             print("\nZusammenfassung und Analyse:")
             print(analysis)
 
             # Cleanup
-            os.remove(actual_output_path)
+            os.remove(output_path)
             os.remove(thumbnail_path)
         else:
             print("Video nicht gefunden oder Fehler beim Abrufen der Details.")
